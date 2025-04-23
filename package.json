@@ -1,0 +1,87 @@
+{
+    "name": "shader-outline",
+    "displayName": "Shader/GLSL/HLSL Outline",
+    "description": "Provide outline view for Shader, GLSL and HLSL languages",
+    "version": "0.0.1",
+    "publisher": "BCWork",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hitode909/vscode-perl-outline"
+    },
+    "icon": "icon.png",
+    "homepage": "https://github.com/hitode909/vscode-perl-outline",
+    "engines": {
+        "vscode": "^1.25.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "activationEvents": [
+        "onLanguage:UnityShader",
+        "onLanguage:glsl",
+        "onLanguage:hlsl",
+        "onLanguage:shader"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "languages": [
+            {
+                "id": "glsl",
+                "aliases": [
+                    "GLSL",
+                    "glsl"
+                ],
+                "extensions": [
+                    ".glsl",
+                    ".vert",
+                    ".frag",
+                    ".geom",
+                    ".tesc",
+                    ".tese",
+                    ".comp"
+                ]
+            },
+            {
+                "id": "hlsl",
+                "aliases": [
+                    "HLSL",
+                    "hlsl"
+                ],
+                "extensions": [
+                    ".hlsl",
+                    ".fx",
+                    ".vsh",
+                    ".psh",
+                    ".gsh",
+                    ".hsl"
+                ]
+            },
+            {
+                "id": "shader",
+                "aliases": [
+                    "Shader",
+                    "shader"
+                ],
+                "extensions": [
+                    ".shader"
+                ]
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^2.2.48",
+        "@types/node": "^7.0.43",
+        "@types/vscode": "^1.25.0",
+        "@vscode/test-electron": "^2.5.2",
+        "tslint": "^5.8.0",
+        "typescript": "^5.0.0",
+        "vscode-test": "^1.5.2"
+    }
+}
