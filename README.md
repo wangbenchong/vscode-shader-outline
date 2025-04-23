@@ -4,6 +4,8 @@ Provides outline view for Shader, GLSL and HLSL languages in VSCode Editor:
 
  ![](./intro.jpg)
 
+ ![img](https://cdn.jsdelivr.net/gh/wangbenchong/vscode-shader-outline@main/Intro.jpg)
+
 Supported file extensions:
 
 - GLSL: .glsl, .vert, .frag, .geom, .tesc, .tese, .comp
