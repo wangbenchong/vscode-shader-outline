@@ -6,10 +6,10 @@
     "publisher": "BCWork",
     "repository": {
         "type": "git",
-        "url": "https://github.com/hitode909/vscode-perl-outline"
+        "url": "https://github.com/wangbenchong/vscode-shader-outline"
     },
     "icon": "icon.png",
-    "homepage": "https://github.com/hitode909/vscode-perl-outline",
+    "homepage": "https://github.com/wangbenchong/vscode-shader-outline",
     "engines": {
         "vscode": "^1.25.0"
     },

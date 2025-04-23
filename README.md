@@ -1,15 +1,17 @@
 # Shader/GLSL/HLSL Outline
 
-Provides outline view for Shader, GLSL and HLSL languages. Currently supporting:
+Provides outline view for Shader, GLSL and HLSL languages.
 
-- Functions (`function`)
-- Structs (`struct`) 
-- Variables (`uniform`, `varying`, `attribute`)
-- Macros (`#define`)
+ ![](./intro.jpg)
 
 Supported file extensions:
 - GLSL: .glsl, .vert, .frag, .geom, .tesc, .tese, .comp
 - HLSL: .hlsl, .fx, .vsh, .psh, .gsh, .hsl  
 - Shader: .shader
 
-![screenshot1](images/screenshot.png)
+Code Copy From:
+
+https://github.com/hitode909/vscode-perl-outline
+
+Then I use AI to edit the logic suit for shader & hlsl. I dont know coding so much, but you can make it better if you have some coding ability. 
+
