@@ -16,11 +16,23 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
 
         for (const matched of matchedList) {
             try {
-                const type = matched[1] || matched[4] || matched[6] ? (matched[6] ? 'function' : '#define') : '';
-                const name = matched[2] || matched[3] || matched[5] || '';
+                //const type = matched[1] || matched[4] || matched[6];
+                const name = (matched[2] || matched[3] || matched[5] || matched[7] || '').replace('{','').trim();
                 if (!name) continue;
-                
-                const kind = tokenToKind[type] || vscode.SymbolKind.Variable;
+                //console.log("type="+type);
+                //console.log("name="+name);
+
+                let kind: vscode.SymbolKind;
+                if (name && tokenToKind[name]) {kind = tokenToKind[name];
+                } else if (matched[6]) {
+                    kind = vscode.SymbolKind.Struct;
+                } else if (matched[4]) {
+                    kind = tokenToKind[matched[4].toLowerCase()] || vscode.SymbolKind.Class;
+                } else if (this.braceStack.length > 0 && this.braceStack[this.braceStack.length-1].symbol.kind === vscode.SymbolKind.Struct) {
+                    kind = vscode.SymbolKind.Field;
+                } else {
+                    kind = this.determineKindByContext('', name);
+                }
                 const position = document.positionAt(matched.index || 0);
                 const range = new vscode.Range(position, position);
                 const symbol = new vscode.DocumentSymbol(
@@ -58,6 +70,8 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
             'SubShader': vscode.SymbolKind.Namespace,
             'Pass': vscode.SymbolKind.Class,
             'pass': vscode.SymbolKind.Class,
+            'CBUFFER_START': vscode.SymbolKind.Class,
+            'CBUFFER_END': vscode.SymbolKind.Class,
             'HLSLPROGRAM': vscode.SymbolKind.Module,
             'HLSLINCLUDE': vscode.SymbolKind.Module,
             'struct': vscode.SymbolKind.Struct,
@@ -79,12 +93,34 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
             'half3': vscode.SymbolKind.Function,
             'half4': vscode.SymbolKind.Function,
             'int': vscode.SymbolKind.Function,
-            'bool': vscode.SymbolKind.Function
+            'bool': vscode.SymbolKind.Function,
+            'vert': vscode.SymbolKind.Function,
+            'frag': vscode.SymbolKind.Function,
+            'ApplyHsvEffect': vscode.SymbolKind.Function,
+            'ApplyTransitionEffect': vscode.SymbolKind.Function,
+            'ApplyShinyEffect': vscode.SymbolKind.Function,
+            'ApplyToneEffect': vscode.SymbolKind.Function,
+            'ApplyColorEffect': vscode.SymbolKind.Function,
+            '#pragma': vscode.SymbolKind.Property
         };
     }
 
+    private determineKindByContext(type: string, name: string): vscode.SymbolKind {
+        // 根据名称特征推断类型
+        if (name.endsWith('_ST') || name.endsWith('_Tex') || name.startsWith('_')) {
+            return vscode.SymbolKind.Property; // 着色器属性
+        }
+        if (name.includes('(') && name.includes(')')) {
+            return vscode.SymbolKind.Function; // 函数
+        }
+        if (type && type.toLowerCase() === 'cbuffer') {
+            return vscode.SymbolKind.Class; // 常量缓冲区
+        }
+        return vscode.SymbolKind.Variable; // 最后才回退到变量
+    }
+
     private get pattern() {
-        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass|CBUFFER_START|CBUFFER_END)(?=\s*\{)|HLSLPROGRAM|HLSLINCLUDE|struct|Tags|Stencil|Cull|Lighting|ZWrite|ZTest|Blend|ColorMask)\b\s*([^\s;{}()]*)|(^\s*[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?:inline\s+)?[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)/gm;
+        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass|CBUFFER_START|CBUFFER_END)(?=\s*\{)|HLSLPROGRAM|HLSLINCLUDE|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil|Cull|Lighting|ZWrite|ZTest|Blend|ColorMask)\b\s*([^\s;{}()]*)|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?(?:vert|frag|Apply\w+Effect)\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)|(^\s*#pragma\s+(?:vertex|fragment)\s+\w+)/gm;
     }
 
     private matchAll(pattern: RegExp, text: string): Array<RegExpMatchArray> {

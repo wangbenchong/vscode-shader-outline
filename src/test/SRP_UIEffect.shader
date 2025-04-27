@@ -74,6 +74,18 @@
 			#include "SRP_UIEffect.hlsl"
 			#include "SRP_UIEffectSprite.hlsl"
 
+			struct MyStruct {
+				float x;
+				float y;
+				float z;
+			};
+			
+			struct AnotherStruct {
+				int id;
+				float4 color;
+				float2 uv;
+			};
+
 			half4 frag(v2f IN) : SV_Target
 			{
 				half4 param = tex2D(_ParamTex, float2(0.25, IN.eParam));
