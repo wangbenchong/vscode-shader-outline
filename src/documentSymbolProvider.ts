@@ -23,7 +23,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
                 {
                     kind = vscode.SymbolKind.Class;
                 }
-                else if(allText.startsWith("Pass") || allText.startsWith("pass"))
+                else if(allText.startsWith("Pass") || allText.startsWith("pass") || allText.startsWith("Name "))
                 {
                     kind = vscode.SymbolKind.Class;
                 }
@@ -86,7 +86,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
     }
 
     private get pattern() {
-        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass)(?=\s*\{)|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil)\b\s*(\[[^\]]+\]|[^\s;{}()]*)|(^|\s)(Cull)\s+(Off|Back|Front)(?=\s|;|$)|\b(Lighting)\s+(On|Off|\[[^\]]+\])(?=\s|;|$)|\b(ZWrite)\s+(On|Off)(?=\s|;|$)|\b(ZTest)\s+(Less|Greater|LEqual|GEqual|Equal|NotEqual|Always|\[[^\]]+\])(?=\s|;|$)|\b(Blend)\s+(Off|(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha)(?:\s+(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha))?)(?=\s|;|$)|\b(ColorMask)\s+(\[[^\]]+\]|\([^)]*\))(?=\s|;|$)|\b(LOD)\s+(\d+)|(^\s*HLSLPROGRAM\b)|(^\s*HLSLINCLUDE\b)|(^\s*CBUFFER_START\b)|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)/gm;
+        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass)(?=\s*\{)|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil)\b\s*(\[[^\]]+\]|[^\s;{}()]*)|(^|\s)(Cull)\s+(Off|Back|Front)(?=\s|;|$)|\b(Lighting)\s+(On|Off|\[[^\]]+\])(?=\s|;|$)|\b(ZWrite)\s+(On|Off)(?=\s|;|$)|\b(ZTest)\s+(Less|Greater|LEqual|GEqual|Equal|NotEqual|Always|\[[^\]]+\])(?=\s|;|$)|\b(Blend)\s+(Off|(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha)(?:\s+(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha))?)(?=\s|;|$)|\b(ColorMask)\s+(\[[^\]]+\]|\([^)]*\))(?=\s|;|$)|\b(LOD)\s+(\d+)|(^\s*HLSLPROGRAM\b)|(^\s*HLSLINCLUDE\b)|(^\s*CBUFFER_START\b)|(\bName\b\s+"([^"]*?)")|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)/gm;
     }
 
     private matchAll(pattern: RegExp, text: string): Array<RegExpMatchArray> {
