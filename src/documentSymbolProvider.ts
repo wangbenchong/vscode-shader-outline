@@ -8,7 +8,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
         document: vscode.TextDocument,
         token: vscode.CancellationToken): vscode.DocumentSymbol[] {
         
-        const tokenToKind = this.tokenToKind;
+        //const tokenToKind = this.tokenToKind;
         const text = document.getText();
         const matchedList = this.matchAll(this.pattern, text);
         const symbols: vscode.DocumentSymbol[] = [];
@@ -16,27 +16,49 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
 
         for (const matched of matchedList) {
             try {
-                //const type = matched[1] || matched[4] || matched[6];
-                const name = (matched[2] || matched[3] || matched[5] || matched[7] || '').replace('{','').trim();
-                if (!name) continue;
-                //console.log("type="+type);
-                //console.log("name="+name);
-
+                if (!matched[0]) continue;
+                const allText = matched[0].replace('{','').trim();
                 let kind: vscode.SymbolKind;
-                if (name && tokenToKind[name]) {kind = tokenToKind[name];
-                } else if (matched[6]) {
+                if(allText.startsWith("Shader") ||  allText.startsWith("SubShader"))
+                {
+                    kind = vscode.SymbolKind.Class;
+                }
+                else if(allText.startsWith("Pass") || allText.startsWith("pass"))
+                {
+                    kind = vscode.SymbolKind.Class;
+                }
+                else if(allText.startsWith("Cull") || allText.startsWith("ZWrite") || allText.startsWith("ZTest") || allText.startsWith("Blend") || allText.startsWith("ColorMask") || allText.startsWith("Lighting") || allText.startsWith("LOD"))
+                {
+                    kind = vscode.SymbolKind.Property;
+                }
+                else if (allText.startsWith("struct")) 
+                {
                     kind = vscode.SymbolKind.Struct;
-                } else if (matched[4]) {
-                    kind = tokenToKind[matched[4].toLowerCase()] || vscode.SymbolKind.Class;
-                } else if (this.braceStack.length > 0 && this.braceStack[this.braceStack.length-1].symbol.kind === vscode.SymbolKind.Struct) {
+                }
+                else if (allText.startsWith("CBUFFER_START") || allText.startsWith("HLSLPROGRAM") || allText.startsWith("HLSLINCLUDE") || allText.startsWith("Properties") || allText.startsWith("Tags") || allText.startsWith("Stencil")) 
+                {
+                    kind = vscode.SymbolKind.Module;
+                }
+                else if(allText.startsWith("_"))
+                {
+                    kind = vscode.SymbolKind.Variable;
+                }
+                else if(matched[0].includes("(") && matched[0].includes(")"))
+                {
+                    kind = vscode.SymbolKind.Function;
+                }
+                else if (this.braceStack.length > 0 && this.braceStack[this.braceStack.length-1].symbol.kind === vscode.SymbolKind.Struct) 
+                {
                     kind = vscode.SymbolKind.Field;
-                } else {
-                    kind = this.determineKindByContext('', name);
+                } 
+                else 
+                {
+                    kind = vscode.SymbolKind.Variable;
                 }
                 const position = document.positionAt(matched.index || 0);
                 const range = new vscode.Range(position, position);
                 const symbol = new vscode.DocumentSymbol(
-                    name,
+                    allText,
                     '',
                     kind,
                     range,
@@ -63,64 +85,8 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
         return symbols;
     }
 
-    private get tokenToKind(): { [name: string]: vscode.SymbolKind; } {
-        return {
-            'Shader': vscode.SymbolKind.Module,
-            'Properties': vscode.SymbolKind.Class,
-            'SubShader': vscode.SymbolKind.Namespace,
-            'Pass': vscode.SymbolKind.Class,
-            'pass': vscode.SymbolKind.Class,
-            'CBUFFER_START': vscode.SymbolKind.Class,
-            'CBUFFER_END': vscode.SymbolKind.Class,
-            'HLSLPROGRAM': vscode.SymbolKind.Module,
-            'HLSLINCLUDE': vscode.SymbolKind.Module,
-            'struct': vscode.SymbolKind.Struct,
-            'Tags': vscode.SymbolKind.Property,
-            'Stencil': vscode.SymbolKind.Property,
-            'Cull': vscode.SymbolKind.Property,
-            'Lighting': vscode.SymbolKind.Property,
-            'ZWrite': vscode.SymbolKind.Property,
-            'ZTest': vscode.SymbolKind.Property,
-            'Blend': vscode.SymbolKind.Property,
-            'ColorMask': vscode.SymbolKind.Property,
-            'void': vscode.SymbolKind.Function,
-            'float': vscode.SymbolKind.Function,
-            'float2': vscode.SymbolKind.Function, 
-            'float3': vscode.SymbolKind.Function,
-            'float4': vscode.SymbolKind.Function,
-            'half': vscode.SymbolKind.Function,
-            'half2': vscode.SymbolKind.Function,
-            'half3': vscode.SymbolKind.Function,
-            'half4': vscode.SymbolKind.Function,
-            'int': vscode.SymbolKind.Function,
-            'bool': vscode.SymbolKind.Function,
-            'vert': vscode.SymbolKind.Function,
-            'frag': vscode.SymbolKind.Function,
-            'ApplyHsvEffect': vscode.SymbolKind.Function,
-            'ApplyTransitionEffect': vscode.SymbolKind.Function,
-            'ApplyShinyEffect': vscode.SymbolKind.Function,
-            'ApplyToneEffect': vscode.SymbolKind.Function,
-            'ApplyColorEffect': vscode.SymbolKind.Function,
-            '#pragma': vscode.SymbolKind.Property
-        };
-    }
-
-    private determineKindByContext(type: string, name: string): vscode.SymbolKind {
-        // 根据名称特征推断类型
-        if (name.endsWith('_ST') || name.endsWith('_Tex') || name.startsWith('_')) {
-            return vscode.SymbolKind.Property; // 着色器属性
-        }
-        if (name.includes('(') && name.includes(')')) {
-            return vscode.SymbolKind.Function; // 函数
-        }
-        if (type && type.toLowerCase() === 'cbuffer') {
-            return vscode.SymbolKind.Class; // 常量缓冲区
-        }
-        return vscode.SymbolKind.Variable; // 最后才回退到变量
-    }
-
     private get pattern() {
-        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass|CBUFFER_START|CBUFFER_END)(?=\s*\{)|HLSLPROGRAM|HLSLINCLUDE|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil|Cull|Lighting|ZWrite|ZTest|Blend|ColorMask)\b\s*([^\s;{}()]*)|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?(?:vert|frag|Apply\w+Effect)\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)|(^\s*#pragma\s+(?:vertex|fragment)\s+\w+)/gm;
+        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass)(?=\s*\{)|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil)\b\s*(\[[^\]]+\]|[^\s;{}()]*)|(^|\s)(Cull)\s+(Off|Back|Front)(?=\s|;|$)|\b(Lighting)\s+(On|Off|\[[^\]]+\])(?=\s|;|$)|\b(ZWrite)\s+(On|Off)(?=\s|;|$)|\b(ZTest)\s+(Less|Greater|LEqual|GEqual|Equal|NotEqual|Always|\[[^\]]+\])(?=\s|;|$)|\b(Blend)\s+(Off|(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha)(?:\s+(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha))?)(?=\s|;|$)|\b(ColorMask)\s+(\[[^\]]+\]|\([^)]*\))(?=\s|;|$)|\b(LOD)\s+(\d+)|(^\s*HLSLPROGRAM\b)|(^\s*HLSLINCLUDE\b)|(^\s*CBUFFER_START\b)|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)/gm;
     }
 
     private matchAll(pattern: RegExp, text: string): Array<RegExpMatchArray> {
@@ -128,12 +94,8 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
         pattern.lastIndex = 0;
         let match: RegExpMatchArray | null;
         while ((match = pattern.exec(text))) {
-            // 只过滤Pass后跟方括号的情况，保留大括号情况
-            /*const startPos = match.index || 0;
-            const nextChar = text[startPos + match[0].length];
-            if (match[1] === 'Pass' && nextChar === '[') {
-                continue;
-            }*/
+            //console.log('Full match:', match[0]);
+            //console.log('Groups:', match.slice(1).map((g,i) => `${i}:${g}`).filter(g => g));
             out.push(match);
         }
         return out;

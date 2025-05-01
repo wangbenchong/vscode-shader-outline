@@ -2,7 +2,7 @@
     "name": "shader-outline",
     "displayName": "Shader/GLSL/HLSL Outline",
     "description": "Provide outline view for Shader, GLSL and HLSL languages",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "BCWork",
     "repository": {
         "type": "git",

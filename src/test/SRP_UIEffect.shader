@@ -20,6 +20,7 @@
 
 	SubShader
 	{
+		LOD 300
 		Tags
 		{
 			"Queue"="Transparent"
