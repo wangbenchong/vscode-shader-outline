@@ -40,11 +40,13 @@
 		}
 
 		Cull Off
+		Cull[_Cull]
 		Lighting Off
 		ZWrite Off
 		ZTest [unity_GUIZTestMode]
 		Blend SrcAlpha OneMinusSrcAlpha
 		ColorMask [_ColorMask]
+		ColorMask 0
 
 		HLSLINCLUDE
 		#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"

@@ -19,7 +19,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
                 if (!matched[0]) continue;
                 const allText = matched[0].replace('{','').trim();
                 let kind: vscode.SymbolKind;
-                if(allText.startsWith("Shader") ||  allText.startsWith("SubShader"))
+                if(allText.startsWith("Shader ") ||  allText.startsWith("SubShader"))
                 {
                     kind = vscode.SymbolKind.Class;
                 }
@@ -35,7 +35,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
                 {
                     kind = vscode.SymbolKind.Struct;
                 }
-                else if (allText.startsWith("CBUFFER_START") || allText.startsWith("HLSLPROGRAM") || allText.startsWith("HLSLINCLUDE") || allText.startsWith("Properties") || allText.startsWith("Tags") || allText.startsWith("Stencil")) 
+                else if (allText.startsWith("CBUFFER_START") || allText.startsWith("HLSLPROGRAM") || allText.startsWith("HLSLINCLUDE") || allText.startsWith("CGPROGRAM") || allText.startsWith("CGINCLUDE")|| allText.startsWith("Properties") || allText.startsWith("Tags") || allText.startsWith("Stencil")) 
                 {
                     kind = vscode.SymbolKind.Module;
                 }
@@ -86,7 +86,7 @@ export class ShaderDocumentSymbolProvider implements vscode.DocumentSymbolProvid
     }
 
     private get pattern() {
-        return /(^|\s)(Shader|Properties|SubShader|(Pass|pass)(?=\s*\{)|(struct)\s+([a-zA-Z_]\w*)|Tags|Stencil)\b\s*(\[[^\]]+\]|[^\s;{}()]*)|(^|\s)(Cull)\s+(Off|Back|Front)(?=\s|;|$)|\b(Lighting)\s+(On|Off|\[[^\]]+\])(?=\s|;|$)|\b(ZWrite)\s+(On|Off)(?=\s|;|$)|\b(ZTest)\s+(Less|Greater|LEqual|GEqual|Equal|NotEqual|Always|\[[^\]]+\])(?=\s|;|$)|\b(Blend)\s+(Off|(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha)(?:\s+(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha))?)(?=\s|;|$)|\b(ColorMask)\s+(\[[^\]]+\]|\([^)]*\))(?=\s|;|$)|\b(LOD)\s+(\d+)|(^\s*HLSLPROGRAM\b)|(^\s*HLSLINCLUDE\b)|(^\s*CBUFFER_START\b)|(\bName\b\s+"([^"]*?)")|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{;]*)?\{)/gm;
+        return /(^|\s)(Properties|SubShader|(Pass|pass)(?=\s*\{)|(\bstruct)\s+([a-zA-Z_]\w*)(?=\s*[;{])|Tags|Stencil)\b\s*(\[[^\]]+\]|[^\s;{}()]*)|(^|\s)(Cull)\s+(Off|Back|Front)(?=\s|;|$)|\b(Cull)\s*(\[[^ ]+\])(?=\s|;|$)|\b(Lighting)\s+(On|Off|\[[^\]]+\])(?=\s|;|$)|\b(Lighting)\s*(\[[^ ]+\])(?=\s|;|$)|\b(ZWrite)\s+(On|Off)(?=\s|;|$)|\b(ZWrite)\s*(\[[^ ]+\])(?=\s|;|$)|\b(ZTest)\s+(Less|Greater|LEqual|GEqual|Equal|NotEqual|Always)(?=\s|;|$)|\b(ZTest)\s*(\[[^ ]+\])(?=\s|;|$)|\b(Blend)\s+(Off|(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha)(?:\s+(?:One|Zero|SrcColor|SrcAlpha|DstColor|DstAlpha|OneMinusSrcColor|OneMinusSrcAlpha|OneMinusDstColor|OneMinusDstAlpha))?)(?=\s|;|$)|\b(ColorMask)\s*(\[[^ ]+\])(?=\s|;|$)|\b(ColorMask)\s+([01]|[RGBrgbAa]{1,4})\b(?=\s|;|$)|\b(LOD)\s+(\d+)|(^\s*HLSLPROGRAM\b)|(^\s*HLSLINCLUDE\b)|(^\s*CGPROGRAM\b)|(^\s*CGINCLUDE\b)|(^\s*CBUFFER_START\b)|(\bName\b\s+"([^"]*?)")|(\bShader\b\s+"([^"]*?)")|(^\s*(?!.*return\s)[a-zA-Z_]\w*\s+[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:[^{]*\{))|(^\s*\[\w+\])|(^\s*(?!.*return\s)(?:inline\s+)?[a-zA-Z_]\w*\s*\([^)]*\)\s*(?:(?!SubShader)[^{;])*\{)/gm;
     }
 
     private matchAll(pattern: RegExp, text: string): Array<RegExpMatchArray> {
