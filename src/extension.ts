@@ -5,7 +5,7 @@ export function activate(context: vscode.ExtensionContext) {
     console.log('Shader Outline extension activated');
     
     const provider = new ShaderDocumentSymbolProvider();
-    const languages = ['UnityShader', 'glsl', 'hlsl', 'plaintext', 'cocos-effect', 'gdshader'];
+    const languages = ['UnityShader', 'glsl', 'hlsl', 'plaintext', 'cocos-effect', 'gdshader', 'cg'];
     const extList = ['.glsl', '.hlsl', '.shader', '.effect', '.vert', '.frag', '.usf', '.ush', '.gdshader', '.cg'];
     const disposable = vscode.languages.registerDocumentSymbolProvider(
         languages.map(lang => ({ language: lang })),
