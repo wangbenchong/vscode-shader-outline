@@ -77,6 +77,15 @@
 			#include "SRP_UIEffect.hlsl"
 			#include "SRP_UIEffectSprite.hlsl"
 
+			// Graph Properties
+			CBUFFER_START(UnityPerMaterial)
+			float _DissolveScale;
+			float _DissolveAmount;
+			float _Bolder;
+			float4 _BolderColor;
+			UNITY_TEXTURE_STREAMING_DEBUG_VARS;
+			CBUFFER_END
+
 			struct MyStruct {
 				float x;
 				float y;
